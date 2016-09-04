@@ -5,7 +5,7 @@ function helloTimeout(count, callback){
 	setTimeout(function(){
 
 		if(!count){
-			callback(null, {error:"erro nessa porra"});
+			callback(null, {error:"error"});
 		}
 		else{
 			callback(count*2);
@@ -33,6 +33,31 @@ venqueuer.createQueue("test1", function(){
 
 });
 
+venqueuer.enqueue("test1", setTimeout, {
+
+	callback: function(){
+		console.log("hello");
+	},
+	time:3000
+
+});
+
+venqueuer.enqueue("test1", setTimeout, {
+
+	callback: function(){
+		console.log("hi");
+	},
+	time:10000
+
+});
+
+
+
+
+
+venqueuer.trigger("test1");
+
+/*
 var i;
 for (i = 1; i < 10; i++){
 	venqueuer.enqueue("test1", helloTimeout, {
@@ -63,6 +88,5 @@ for (i = 1; i < 10; i++){
 		}
 
 	});
-}
+}*/
 
-venqueuer.trigger("test1");

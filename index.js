@@ -30,7 +30,7 @@ module.exports = function(){
 
 		}
 		else{
-			//throw {err:"The queue named " + name + " doesn't exist!"};
+			throw {err:"The queue named " + name + " doesn't exist!"};
 		}
 
 	};
