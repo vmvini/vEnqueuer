@@ -9,6 +9,10 @@ module.exports = function(){
 		queues[name] = new Enqueuer(complete);
 	};
 
+	this.hasTasks = function(name){
+		return queues[name].hasTasks();
+	};	
+
 	this.enqueue = function(name, func, args){
 
 		var schedulable;
