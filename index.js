@@ -4,14 +4,30 @@ var Schedulable = require('./lib/Schedulable');
 module.exports = function(){
 
 	var queues = {};
+	var that = this;
 
 	this.createQueue = function(name, complete){
 		queues[name] = new Enqueuer(complete);
+		checker();
+		function checker(){
+			setInterval(function(){
+				if(hasNewTasks(name)){
+					that.trigger(name);
+				}
+			}, 10000);
+		}
 	};
 
 	this.hasTasks = function(name){
 		return queues[name].hasTasks();
 	};	
+	
+	function hasNewTasks(name){
+		if(!queues[name].isRunning() && queues[name].hasTasks()){
+			return true;
+		}
+		return false;
+	}
 
 	this.enqueue = function(name, func, args){
 
