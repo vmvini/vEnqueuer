@@ -8,14 +8,6 @@ module.exports = function(){
 
 	this.createQueue = function(name, complete){
 		queues[name] = new Enqueuer(complete);
-		checker();
-		function checker(){
-			setInterval(function(){
-				if(hasNewTasks(name)){
-					that.trigger(name);
-				}
-			}, 10000);
-		}
 	};
 
 	this.hasTasks = function(name){
@@ -47,6 +39,10 @@ module.exports = function(){
 			schedulable = new Schedulable(func, args, self );
 			
 			queues[name].enqueue( schedulable );
+
+			if(hasNewTasks(name)){
+				that.trigger(name);
+			}
 
 		}
 		else{
