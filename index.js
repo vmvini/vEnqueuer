@@ -1,67 +1,74 @@
 var Enqueuer = require('./lib/Enqueuer');
 var Schedulable = require('./lib/Schedulable');
 
-module.exports = function(){
+module.exports = function() {
 
-	var queues = {};
-	var that = this;
+    var queues = {};
+    var that = this;
 
-	this.createQueue = function(name, complete){
-		queues[name] = new Enqueuer(complete);
-	};
+    this.createQueue = function(name, complete) {
+        queues[name] = new Enqueuer(complete);
+    };
 
-	this.hasTasks = function(name){
-		return queues[name].hasTasks();
-	};	
-	
-	function hasNewTasks(name){
-		if(!queues[name].isRunning() && queues[name].hasTasks()){
-			return true;
-		}
-		return false;
-	}
+    this.hasTasks = function(name) {
+        return queues[name].hasTasks();
+    };
 
-	this.enqueue = function(name, func, args){
+    function hasNewTasks(name) {
+        if (!queues[name].isRunning() && queues[name].hasTasks()) {
+            return true;
+        }
+        return false;
+    }
 
-		var schedulable;
+    this.enqueuePriority = function(name, func, args) {
+        that.enqueue(name, func, args, true);
+    };
 
-		if(queues[name] !== undefined){
-			
-			var self = null;
-			if(args.self){
-				self = args.self;
-			}
+    this.enqueue = function(name, func, args, priority) {
 
-			if(!args.callback){
-				args.callback = function(){};
-			}
+        var schedulable;
 
-			schedulable = new Schedulable(func, args, self );
-			
-			queues[name].enqueue( schedulable );
+        if (queues[name] !== undefined) {
 
-			if(hasNewTasks(name)){
-				that.trigger(name);
-			}
+            var self = null;
+            if (args.self) {
+                self = args.self;
+            }
 
-		}
-		else{
-			throw {err:"The queue named " + name + " doesn't exist!"};
-		}
+            if (!args.callback) {
+                args.callback = function() {};
+            }
 
-	};
+            schedulable = new Schedulable(func, args, self);
+
+            if (priority) {
+                queues[name].enqueuePriority(schedulable);
+            } else {
+                queues[name].enqueue(schedulable);
+            }
 
 
-	this.trigger = function(name){
+            if (hasNewTasks(name)) {
+                that.trigger(name);
+            }
 
-		if(queues[name] !== undefined){
-			queues[name].start();
-		}
-		else{
-			throw {err:"The queue named " + name + " doesn't exist!"};
-		}
+        } else {
+            throw { err: "The queue named " + name + " doesn't exist!" };
+        }
 
-	};
+    };
+
+
+    this.trigger = function(name) {
+
+        if (queues[name] !== undefined) {
+            queues[name].start();
+        } else {
+            throw { err: "The queue named " + name + " doesn't exist!" };
+        }
+
+    };
 
 
 };
