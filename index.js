@@ -70,5 +70,13 @@ module.exports = function() {
 
     };
 
+    this.cancel = function(name) {
+        if (queues[name] !== undefined) {
+            queues[name].cancel();
+        } else {
+            throw { err: "The queue named " + name + " doesn't exist!" };
+        }
+    };
+
 
 };
