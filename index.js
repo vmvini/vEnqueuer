@@ -4,10 +4,26 @@ var Schedulable = require('./lib/Schedulable');
 module.exports = function() {
 
     var queues = {};
+    var cleaning = false;
     var that = this;
 
     this.createQueue = function(name, complete) {
         queues[name] = new Enqueuer(complete);
+    };
+
+    this.cancelAll = function(){
+        cleaning = true;
+        const promises = [];
+        
+        for (var property in queues) {
+            if (queues.hasOwnProperty(property)) {
+                promises.push( queues[property].cancelPromise() );
+            }
+        }
+        Promise.all(promises).then(()=>{
+            cleaning = false;
+        });
+
     };
 
     this.hasTasks = function(name) {
@@ -22,11 +38,16 @@ module.exports = function() {
     }
 
     this.enqueuePriority = function(name, func, args) {
+        if(cleaning){
+            return;
+        }
         that.enqueue(name, func, args, true);
     };
 
     this.enqueue = function(name, func, args, priority) {
-
+        if(cleaning){
+            return;
+        }
         var schedulable;
 
         if (queues[name] !== undefined) {
